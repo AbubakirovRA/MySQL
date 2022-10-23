@@ -1,0 +1,307 @@
+mysql> show databases
+    -> ;
++--------------------+
+| Database           |
++--------------------+
+| homework_1         |
+| homework_2         |
+| homework_3         |
+| homework_4         |
+| homework_5         |
+| information_schema |
+| lesson2            |
+| lesson_1           |
+| lesson_2           |
+| lesson_3           |
+| lesson_4           |
+| mysql              |
+| performance_schema |
+| sakila             |
+| sys                |
+| test               |
+| world              |
++--------------------+
+17 rows in set (0.07 sec)
+
+mysql> create database lesson_5;
+Query OK, 1 row affected (0.11 sec)
+
+mysql> use lesson_5
+Database changed
+mysql> create table sales(
+    -> sales_employee varchar(50) not null,
+    -> fiscal_year int not null,
+    -> sale decimal(14,2) not null,
+    -> primary key(sales_employee, fiscal_year)
+    -> );
+Query OK, 0 rows affected (0.19 sec)
+
+mysql> insert into sales(sales_employee, fiscal_year, sale)
+    -> values('Bob',2016,100),
+    -> ('Bob',2017,50),
+    -> ('Bob',2018,200),
+    -> ('Alice',2016,150),
+    -> ('Alice',2017,100),
+    -> ('Alice',2018,200),
+    -> ('John',2016,200),
+    -> ('John',2017,150),
+    -> ('John',2018,250);
+Query OK, 9 rows affected (0.05 sec)
+Records: 9  Duplicates: 0  Warnings: 0
+
+mysql> select * from sales;
++----------------+-------------+--------+
+| sales_employee | fiscal_year | sale   |
++----------------+-------------+--------+
+| Alice          |        2016 | 150.00 |
+| Alice          |        2017 | 100.00 |
+| Alice          |        2018 | 200.00 |
+| Bob            |        2016 | 100.00 |
+| Bob            |        2017 |  50.00 |
+| Bob            |        2018 | 200.00 |
+| John           |        2016 | 200.00 |
+| John           |        2017 | 150.00 |
+| John           |        2018 | 250.00 |
++----------------+-------------+--------+
+9 rows in set (0.00 sec)
+
+mysql> update sales set sale=150 where fiscal_year=2017;
+Query OK, 2 rows affected (0.09 sec)
+Rows matched: 3  Changed: 2  Warnings: 0
+
+mysql> select * from sales;
++----------------+-------------+--------+
+| sales_employee | fiscal_year | sale   |
++----------------+-------------+--------+
+| Alice          |        2016 | 150.00 |
+| Alice          |        2017 | 150.00 |
+| Alice          |        2018 | 200.00 |
+| Bob            |        2016 | 100.00 |
+| Bob            |        2017 | 150.00 |
+| Bob            |        2018 | 200.00 |
+| John           |        2016 | 200.00 |
+| John           |        2017 | 150.00 |
+| John           |        2018 | 250.00 |
++----------------+-------------+--------+
+9 rows in set (0.00 sec)
+
+mysql> update sales set sale=100 where fiscal_year=2017 and sales_employee='Alice';
+Query OK, 1 row affected (0.06 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from sales;
++----------------+-------------+--------+
+| sales_employee | fiscal_year | sale   |
++----------------+-------------+--------+
+| Alice          |        2016 | 150.00 |
+| Alice          |        2017 | 100.00 |
+| Alice          |        2018 | 200.00 |
+| Bob            |        2016 | 100.00 |
+| Bob            |        2017 | 150.00 |
+| Bob            |        2018 | 200.00 |
+| John           |        2016 | 200.00 |
+| John           |        2017 | 150.00 |
+| John           |        2018 | 250.00 |
++----------------+-------------+--------+
+9 rows in set (0.00 sec)
+
+mysql> select fiscal_year, sum(sale)
+    -> from sales
+    -> group by fiscal_year;
++-------------+-----------+
+| fiscal_year | sum(sale) |
++-------------+-----------+
+|        2016 |    450.00 |
+|        2017 |    400.00 |
+|        2018 |    650.00 |
++-------------+-----------+
+3 rows in set (0.04 sec)
+
+mysql> /*Window Function*/
+mysql> create table Orders(
+    -> Date date,
+    -> Medium varchar(10),
+    -> Conversions int;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 4
+mysql> create table Orders(
+    -> Date date,
+    -> Medium varchar(10),
+    -> Conversions int);
+Query OK, 0 rows affected (0.36 sec)
+
+mysql> insert into Orders(Date, Medium, Conversions)
+    -> values('2020-05-10', cpa,1),
+    -> ('2020-05-10', cpc,2),
+    -> ('2020-05-10', organic,1),
+    -> ('2020-05-11', cpa,1),
+    -> ('2020-05-11', cpc,3),
+    -> ('2020-05-11', organic,2),
+    -> ('2020-05-11', direct,1),
+    -> ('2020-05-12', cpc,1),
+    -> ('2020-05-12', organic,2);
+ERROR 1054 (42S22): Unknown column 'cpa' in 'field list'
+mysql> insert into Orders(Date, Medium, Conversions)
+    -> values('2020-05-10', 'cpa',1),
+    -> ('2020-05-10', 'cpc',2),
+    -> ('2020-05-10', 'organic',1),
+    -> ('2020-05-11', 'cpa',1),
+    -> ('2020-05-11', 'cpc',3),
+    -> ('2020-05-11', 'organic',2),
+    -> ('2020-05-11', 'direct',1),
+    -> ('2020-05-12', 'cpc',1),
+    -> ('2020-05-12', 'organic',2);
+Query OK, 9 rows affected (0.06 sec)
+Records: 9  Duplicates: 0  Warnings: 0
+
+mysql> select Date, Medium, Conversions,
+    -> sum(Conversions) over as 'Sum'
+    -> from Orders;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as 'Sum'
+from Orders' at line 2
+mysql> select Date, Medium, Conversions,
+    -> sum(Conversions) over() as 'Sum'
+    -> from Orders;
++------------+---------+-------------+------+
+| Date       | Medium  | Conversions | Sum  |
++------------+---------+-------------+------+
+| 2020-05-10 | cpa     |           1 |   14 |
+| 2020-05-10 | cpc     |           2 |   14 |
+| 2020-05-10 | organic |           1 |   14 |
+| 2020-05-11 | cpa     |           1 |   14 |
+| 2020-05-11 | cpc     |           3 |   14 |
+| 2020-05-11 | organic |           2 |   14 |
+| 2020-05-11 | direct  |           1 |   14 |
+| 2020-05-12 | cpc     |           1 |   14 |
+| 2020-05-12 | organic |           2 |   14 |
++------------+---------+-------------+------+
+9 rows in set (0.15 sec)
+
+mysql> select Date, Medium, Conversions,
+    -> sum(Conversions) over(partition by Date) as 'Sum'
+    -> from Orders;
++------------+---------+-------------+------+
+| Date       | Medium  | Conversions | Sum  |
++------------+---------+-------------+------+
+| 2020-05-10 | cpa     |           1 |    4 |
+| 2020-05-10 | cpc     |           2 |    4 |
+| 2020-05-10 | organic |           1 |    4 |
+| 2020-05-11 | cpa     |           1 |    7 |
+| 2020-05-11 | cpc     |           3 |    7 |
+| 2020-05-11 | organic |           2 |    7 |
+| 2020-05-11 | direct  |           1 |    7 |
+| 2020-05-12 | cpc     |           1 |    3 |
+| 2020-05-12 | organic |           2 |    3 |
++------------+---------+-------------+------+
+9 rows in set (0.00 sec)
+
+mysql> select Date, Medium, Conversions,
+    -> sum(Conversions) over as 'Sum'
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'as 'Sum'' at line 2
+mysql> select Date, Medium, Conversions,
+    -> sum(Conversions) over(partition by Date order by Medium) as 'Sum'
+    -> from Orders;
++------------+---------+-------------+------+
+| Date       | Medium  | Conversions | Sum  |
++------------+---------+-------------+------+
+| 2020-05-10 | cpa     |           1 |    1 |
+| 2020-05-10 | cpc     |           2 |    3 |
+| 2020-05-10 | organic |           1 |    4 |
+| 2020-05-11 | cpa     |           1 |    1 |
+| 2020-05-11 | cpc     |           3 |    4 |
+| 2020-05-11 | direct  |           1 |    5 |
+| 2020-05-11 | organic |           2 |    7 |
+| 2020-05-12 | cpc     |           1 |    1 |
+| 2020-05-12 | organic |           2 |    3 |
++------------+---------+-------------+------+
+9 rows in set (0.02 sec)
+
+mysql> select Date, Medium, Conversions,
+    -> sum(Conversions) over(partition by Date order by Conversions rows between current row and 1 folowing) as 'Sum'
+    -> from Orders;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'folowing) as 'Sum'
+from Orders' at line 2
+mysql> select Date, Medium, Conversions,
+    -> sum(Conversions) over(partition by Date order by Conversions rows between current row and 1 following) as 'Sum'
+    -> from Orders;
++------------+---------+-------------+------+
+| Date       | Medium  | Conversions | Sum  |
++------------+---------+-------------+------+
+| 2020-05-10 | cpa     |           1 |    2 |
+| 2020-05-10 | organic |           1 |    3 |
+| 2020-05-10 | cpc     |           2 |    2 |
+| 2020-05-11 | cpa     |           1 |    2 |
+| 2020-05-11 | direct  |           1 |    3 |
+| 2020-05-11 | organic |           2 |    5 |
+| 2020-05-11 | cpc     |           3 |    3 |
+| 2020-05-12 | cpc     |           1 |    3 |
+| 2020-05-12 | organic |           2 |    2 |
++------------+---------+-------------+------+
+9 rows in set (0.00 sec)
+
+mysql> select Date, Medium, Conversions,
+    -> sum(Conversions) over(partition by Date) as 'Sum',
+    -> count(Conversions) over(partition by Date) as 'Count',
+    -> avg(Conversions) over(partition by Date) as 'Avg',
+    -> max(Conversions) over(partition by Date) as 'Max',
+    -> Min(Conversions) over(partition by Date) as 'Min'
+    -> from Orders;
++------------+---------+-------------+------+-------+--------+------+------+
+| Date       | Medium  | Conversions | Sum  | Count | Avg    | Max  | Min  |
++------------+---------+-------------+------+-------+--------+------+------+
+| 2020-05-10 | cpa     |           1 |    4 |     3 | 1.3333 |    2 |    1 |
+| 2020-05-10 | cpc     |           2 |    4 |     3 | 1.3333 |    2 |    1 |
+| 2020-05-10 | organic |           1 |    4 |     3 | 1.3333 |    2 |    1 |
+| 2020-05-11 | cpa     |           1 |    7 |     4 | 1.7500 |    3 |    1 |
+| 2020-05-11 | cpc     |           3 |    7 |     4 | 1.7500 |    3 |    1 |
+| 2020-05-11 | organic |           2 |    7 |     4 | 1.7500 |    3 |    1 |
+| 2020-05-11 | direct  |           1 |    7 |     4 | 1.7500 |    3 |    1 |
+| 2020-05-12 | cpc     |           1 |    3 |     2 | 1.5000 |    2 |    1 |
+| 2020-05-12 | organic |           2 |    3 |     2 | 1.5000 |    2 |    1 |
++------------+---------+-------------+------+-------+--------+------+------+
+9 rows in set (0.05 sec)
+
+mysql> select Date, Medium, Conversions,
+    -> row_number()
+    -> over(partition by Date order by Conversions) as 'Row_number',
+    -> rank()over(partition by Date order by Conversions) as 'Rank',
+    -> dense_rank() over(partition by Date order by Conversions) as 'Dense_rank',
+    -> ntile(3)over(partition by Date order by Conversions) as 'Ntile'
+    -> from Orders;
++------------+---------+-------------+------------+------+------------+-------+
+| Date       | Medium  | Conversions | Row_number | Rank | Dense_rank | Ntile |
++------------+---------+-------------+------------+------+------------+-------+
+| 2020-05-10 | cpa     |           1 |          1 |    1 |          1 |     1 |
+| 2020-05-10 | organic |           1 |          2 |    1 |          1 |     2 |
+| 2020-05-10 | cpc     |           2 |          3 |    3 |          2 |     3 |
+| 2020-05-11 | cpa     |           1 |          1 |    1 |          1 |     1 |
+| 2020-05-11 | direct  |           1 |          2 |    1 |          1 |     1 |
+| 2020-05-11 | organic |           2 |          3 |    3 |          2 |     2 |
+| 2020-05-11 | cpc     |           3 |          4 |    4 |          3 |     3 |
+| 2020-05-12 | cpc     |           1 |          1 |    1 |          1 |     1 |
+| 2020-05-12 | organic |           2 |          2 |    2 |          2 |     2 |
++------------+---------+-------------+------------+------+------------+-------+
+9 rows in set (0.06 sec)
+
+mysql> select Date, Medium, Conversions,
+    -> LAG(Conversions) over(partition by Date order by Date) as 'Lag',
+    -> LEAD(Conversions) over(partition by Date order by Date) as 'Lead',
+    -> first_value(Conversions) over(partition by Date order by Date) as 'first_value',
+    -> last_value(Conversions) over(partition by Date order by Date) as 'Last_value'
+    -> from Orders;
++------------+---------+-------------+------+------+-------------+------------+
+| Date       | Medium  | Conversions | Lag  | Lead | first_value | Last_value |
++------------+---------+-------------+------+------+-------------+------------+
+| 2020-05-10 | cpa     |           1 | NULL |    2 |           1 |          1 |
+| 2020-05-10 | cpc     |           2 |    1 |    1 |           1 |          1 |
+| 2020-05-10 | organic |           1 |    2 | NULL |           1 |          1 |
+| 2020-05-11 | cpa     |           1 | NULL |    3 |           1 |          1 |
+| 2020-05-11 | cpc     |           3 |    1 |    2 |           1 |          1 |
+| 2020-05-11 | organic |           2 |    3 |    1 |           1 |          1 |
+| 2020-05-11 | direct  |           1 |    2 | NULL |           1 |          1 |
+| 2020-05-12 | cpc     |           1 | NULL |    2 |           1 |          2 |
+| 2020-05-12 | organic |           2 |    1 | NULL |           1 |          2 |
++------------+---------+-------------+------+------+-------------+------------+
+9 rows in set (0.00 sec)
+
+mysql>

@@ -1,0 +1,87 @@
+mysql> create table Cars
+    -> (
+    -> Id INT PRIMARY KEY AUTO_INCREMENT,
+    -> Name VARCHAR (20) NOT NULL,
+    -> Cost NUMERIC
+    -> );
+Query OK, 0 rows affected (0.21 sec)
+
+mysql> INSERT INTO Cars(Id, Name, Cost)
+    -> VALUES
+    -> (1, 'Audi', 52642),
+    -> (2, 'Mercedes', 57127),
+    -> (3, 'Skoda', 9000),
+    -> (4, 'Volvo', 29000),
+    -> (5, 'Bentley', 350000),
+    -> (6, 'Citroen' ,21000),
+    -> (7, 'Hummer', 41400),
+    -> (8, 'Volkswagen', 21600);
+Query OK, 8 rows affected (0.11 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+mysql> select * from Cars;
++----+------------+--------+
+| Id | Name       | Cost   |
++----+------------+--------+
+|  1 | Audi       |  52642 |
+|  2 | Mercedes   |  57127 |
+|  3 | Skoda      |   9000 |
+|  4 | Volvo      |  29000 |
+|  5 | Bentley    | 350000 |
+|  6 | Citroen    |  21000 |
+|  7 | Hummer     |  41400 |
+|  8 | Volkswagen |  21600 |
++----+------------+--------+
+8 rows in set (0.00 sec)
+
+
+1.	Создайте представление, в которое попадут автомобили стоимостью  до 25 000 долларов
+
+mysql> create view price_up_to_25000 as
+    -> select * from Cars
+    -> where Cost<25000;
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> select * from price_up_to_25000;
++----+------------+-------+
+| Id | Name       | Cost  |
++----+------------+-------+
+|  3 | Skoda      |  9000 |
+|  6 | Citroen    | 21000 |
+|  8 | Volkswagen | 21600 |
++----+------------+-------+
+3 rows in set (0.06 sec)
+
+2.	Изменить в существующем представлении порог для стоимости: пусть цена будет до 30 000 долларов (используя оператор ALTER VIEW) 
+
+mysql> alter view price_up_to_25000 as
+    -> select * from Cars
+    -> where Cost<30000;
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> select * from price_up_to_25000;
++----+------------+-------+
+| Id | Name       | Cost  |
++----+------------+-------+
+|  3 | Skoda      |  9000 |
+|  4 | Volvo      | 29000 |
+|  6 | Citroen    | 21000 |
+|  8 | Volkswagen | 21600 |
++----+------------+-------+
+4 rows in set (0.00 sec)
+
+3. 	Создайте представление, в котором будут только автомобили марки “Шкода” и “Ауди”
+
+mysql> alter view price_up_to_25000 as
+    -> select * from Cars
+    -> where (Name='Skoda' or Name='Audi');
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> select * from price_up_to_25000;
++----+-------+-------+
+| Id | Name  | Cost  |
++----+-------+-------+
+|  1 | Audi  | 52642 |
+|  3 | Skoda |  9000 |
++----+-------+-------+
+2 rows in set (0.00 sec)

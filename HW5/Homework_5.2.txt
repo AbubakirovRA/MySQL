@@ -1,0 +1,293 @@
+Вывести название и цену для всех анализов, которые продавались 5 февраля 2020 и всю следующую неделю.
+
+mysql> select an_name, an_price from analysis
+    -> join Orders on Orders.ord_an = analysis.an_id
+    -> where (ord_datetime>='2020-02-05' and ord_datetime<='2020-02-12')
+    -> group by an_name
+    -> order by an_name;
++----------+----------+
+| an_name  | an_price |
++----------+----------+
+| analis_1 |    15.50 |
+| analis_2 |     7.40 |
+| analis_3 |     2.20 |
+| analis_4 |    10.50 |
++----------+----------+
+4 rows in set (0.00 sec)
+
+СЩЗДАНИЕ ПРЕДСТАВЛЕНИЯ:
+mysql> create view new_view as
+    -> select an_name, an_price from analysis
+    -> join Orders on Orders.ord_an = analysis.an_id
+    -> where (ord_datetime>='2020-02-05' and ord_datetime<='2020-02-12')
+    -> group by an_name
+    -> order by an_name;
+Query OK, 0 rows affected (0.14 sec)
+
+mysql> select * from new_view;
++----------+----------+
+| an_name  | an_price |
++----------+----------+
+| analis_1 |    15.50 |
+| analis_2 |     7.40 |
+| analis_3 |     2.20 |
+| analis_4 |    10.50 |
++----------+----------+
+4 rows in set (0.05 sec)
+
+БЕЗ ФИЛЬТРОВ:
+mysql> select * from analysis
+    -> join Orders on Orders.ord_an = analysis.an_id
+    -> where (ord_datetime>='2020-02-05' and ord_datetime<='2020-02-12');
++-------+----------+---------+----------+------------+--------+---------------------+--------+
+| an_id | an_name  | an_cost | an_price | an_group   | ord_id | ord_datetime        | ord_an |
++-------+----------+---------+----------+------------+--------+---------------------+--------+
+|     2 | analis_2 |    5.20 |     7.40 | medical    |      5 | 2020-02-05 00:00:00 |      2 |
+|     3 | analis_3 |    1.10 |     2.20 | common     |      6 | 2020-02-06 00:00:00 |      3 |
+|     2 | analis_2 |    5.20 |     7.40 | medical    |      7 | 2020-02-07 00:00:00 |      2 |
+|     3 | analis_3 |    1.10 |     2.20 | common     |      8 | 2020-02-08 00:00:00 |      3 |
+|     2 | analis_2 |    5.20 |     7.40 | medical    |      9 | 2020-02-09 00:00:00 |      2 |
+|     1 | analis_1 |   10.50 |    15.50 | blood      |     10 | 2020-02-10 00:00:00 |      1 |
+|     4 | analis_4 |    7.50 |    10.50 | commercial |     11 | 2020-02-11 00:00:00 |      4 |
+|     3 | analis_3 |    1.10 |     2.20 | common     |     12 | 2020-02-12 00:00:00 |      3 |
++-------+----------+---------+----------+------------+--------+---------------------+--------+
+8 rows in set (0.08 sec)
+
+СОЗДАНИЕ ТАБЛИЦ:
+/*********************************************************************/
+Есть таблица анализов Analysis:
+an_id — ID анализа;
+an_name — название анализа;
+an_cost — себестоимость анализа;
+an_price — розничная цена анализа;
+an_group — группа анализов.
+/*********************************************************************/
+
+mysql> create table Ananlysis
+    -> (
+    -> an_id int primary key auto_increment,
+    -> an_name varchar (20),
+    -> an_cost decimal (6,2),
+    -> an_price decimal (6,2),
+    -> an_group varchar (20)
+    -> );
+Query OK, 0 rows affected (0.12 sec)
+
+mysql> insert into analysis(an_id, an_name, an_cost, an_price, an_group)
+    -> values
+    -> (1, 'analis_1', 10.50, 15.50, 'blood');
+    -> (2, 'analis_2', 5.20, 7.40, 'common'),
+    -> (3, 'analis_3', 1.1, 2.2, 'common'),
+    -> (4, 'analis_4', 7.5, 10.5, 'commercial');
+Query OK, 4 rows affected (0.10 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> select* from analysis;
++-------+----------+---------+----------+------------+
+| an_id | an_name  | an_cost | an_price | an_group   |
++-------+----------+---------+----------+------------+
+|     1 | analis_1 |   10.50 |    15.50 | blood      |
+|     2 | analis_2 |    5.20 |     7.40 | common     |
+|     3 | analis_3 |    1.10 |     2.20 | common     |
+|     4 | analis_4 |    7.50 |    10.50 | commercial |
++-------+----------+---------+----------+------------+
+4 rows in set (0.00 sec)
+
+mysql> SHOW FULL COLUMNS FROM analysis;,
++----------+--------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+| Field    | Type         | Collation          | Null | Key | Default | Extra          | Privileges                      | Comment |
++----------+--------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+| an_id    | int          | NULL               | NO   | PRI | NULL    | auto_increment | select,insert,update,references |         |
+| an_name  | varchar(20)  | utf8mb4_0900_ai_ci | YES  |     | NULL    |                | select,insert,update,references |         |
+| an_cost  | decimal(6,2) | NULL               | YES  |     | NULL    |                | select,insert,update,references |         |
+| an_price | decimal(6,2) | NULL               | YES  |     | NULL    |                | select,insert,update,references |         |
+| an_group | varchar(20)  | utf8mb4_0900_ai_ci | YES  |     | NULL    |                | select,insert,update,references |         |
++----------+--------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+5 rows in set (0.13 sec)
+
+mysql> update analysis set an_group = 'medical' where an_id = 2;
+Query OK, 1 row affected (0.12 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from analysis;
++-------+----------+---------+----------+------------+
+| an_id | an_name  | an_cost | an_price | an_group   |
++-------+----------+---------+----------+------------+
+|     1 | analis_1 |   10.50 |    15.50 | blood      |
+|     2 | analis_2 |    5.20 |     7.40 | medical    |
+|     3 | analis_3 |    1.10 |     2.20 | common     |
+|     4 | analis_4 |    7.50 |    10.50 | commercial |
++-------+----------+---------+----------+------------+
+4 rows in set (0.00 sec)
+
+mysql> ALTER TABLE analysis ADD UNIQUE (an_group);	//для того, чтобы связать по внешнему ключу Groups.gr_name с analysis.an_group, 
+Query OK, 0 rows affected (0.40 sec)			//поле an_group должно быть UNIQUE (либо PK), количество записей и их тип - одинаковые
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> SHOW FULL COLUMNS FROM analysis;
++----------+--------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+| Field    | Type         | Collation          | Null | Key | Default | Extra          | Privileges                      | Comment |
++----------+--------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+| an_id    | int          | NULL               | NO   | PRI | NULL    | auto_increment | select,insert,update,references |         |
+| an_name  | varchar(20)  | utf8mb4_0900_ai_ci | YES  |     | NULL    |                | select,insert,update,references |         |
+| an_cost  | decimal(6,2) | NULL               | YES  |     | NULL    |                | select,insert,update,references |         |
+| an_price | decimal(6,2) | NULL               | YES  |     | NULL    |                | select,insert,update,references |         |
+| an_group | varchar(20)  | utf8mb4_0900_ai_ci | YES  | UNI | NULL    |                | select,insert,update,references |         |
++----------+--------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+5 rows in set (0.00 sec)
+
+
+/**********************************************************/
+Есть таблица групп анализов Groups:
+gr_id — ID группы;
+gr_name — название группы;
+gr_temp — температурный режим хранения.
+/**********************************************************/
+
+mysql> create table `Groups`
+    -> (
+    -> gr_id int primary key auto_increment,
+    -> gr_name varchar(20),
+    -> gr_temp int
+    -> );
+Query OK, 0 rows affected (0.23 sec)
+
+mysql> insert into `Groups`(gr_id, gr_name, gr_temp)
+    -> values
+    -> (1, 'blood', 8),
+    -> (2, 'common', 18),
+    -> (3, 'commercial', 10);
+Query OK, 3 rows affected (0.05 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from `Groups`;
++-------+------------+---------+
+| gr_id | gr_name    | gr_temp |
++-------+------------+---------+
+|     1 | blood      |       8 |
+|     2 | common     |      18 |
+|     3 | commercial |      10 |
++-------+------------+---------+
+3 rows in set (0.00 sec)
+
+mysql> insert into `Groups`(gr_id, gr_name, gr_temp)
+    -> value
+    -> (4, 'medical', 15);
+Query OK, 1 row affected (0.08 sec)
+
+mysql> select * from `Groups`;
++-------+------------+---------+
+| gr_id | gr_name    | gr_temp |
++-------+------------+---------+
+|     1 | blood      |       8 |
+|     2 | common     |      18 |
+|     3 | commercial |      10 |
+|     4 | medical    |      15 |
++-------+------------+---------+
+4 rows in set (0.00 sec)
+
+mysql> SHOW FULL COLUMNS FROM `Groups`;
++---------+-------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+| Field   | Type        | Collation          | Null | Key | Default | Extra          | Privileges                      | Comment |
++---------+-------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+| gr_id   | int         | NULL               | NO   | PRI | NULL    | auto_increment | select,insert,update,references |         |
+| gr_name | varchar(20) | utf8mb4_0900_ai_ci | YES  |     | NULL    |                | select,insert,update,references |         |
+| gr_temp | int         | NULL               | YES  |     | NULL    |                | select,insert,update,references |         |
++---------+-------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+3 rows in set (0.00 sec)
+
+mysql> update `Groups` set gr_id=5 where gr_temp=10;
+Query OK, 1 row affected (0.19 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> update `Groups` set gr_id=3 where gr_temp=18;
+Query OK, 1 row affected (0.05 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> update `Groups` set gr_id=4 where gr_temp=10;
+Query OK, 1 row affected (0.16 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from `Groups`;
++-------+------------+---------+
+| gr_id | gr_name    | gr_temp |
++-------+------------+---------+
+|     1 | blood      |       8 |
+|     2 | medical    |      15 |
+|     3 | common     |      18 |
+|     4 | commercial |      10 |
++-------+------------+---------+
+4 rows in set (0.00 sec)
+
+mysql> alter table `Groups`
+    -> add foreign key(gr_name) references analysis(an_group);
+Query OK, 4 rows affected (0.75 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> SHOW FULL COLUMNS FROM `Groups`;
++---------+-------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+| Field   | Type        | Collation          | Null | Key | Default | Extra          | Privileges                      | Comment |
++---------+-------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+| gr_id   | int         | NULL               | NO   | PRI | NULL    | auto_increment | select,insert,update,references |         |
+| gr_name | varchar(20) | utf8mb4_0900_ai_ci | YES  | MUL | NULL    |                | select,insert,update,references |         |
+| gr_temp | int         | NULL               | YES  |     | NULL    |                | select,insert,update,references |         |
++---------+-------------+--------------------+------+-----+---------+----------------+---------------------------------+---------+
+3 rows in set (0.00 sec)
+
+
+/********************************************************************/
+Есть таблица заказов Orders:
+ord_id — ID заказа;
+ord_datetime — дата и время заказа;
+ord_an — ID анализа.
+/********************************************************************/
+
+mysql> create table Orders
+    -> (
+    -> ord_id int primary key auto_increment,
+    -> ord_datetime datetime not null,
+    -> ord_an int,
+    -> foreign key(ord_an) references analysis(an_id));
+Query OK, 0 rows affected (0.27 sec)
+
+mysql> insert into Orders(ord_id, ord_datetime, ord_an)
+    -> values
+    -> (1, '2020-02-01', 3);
+    -> (2, '2020-02-02', 1),
+    -> (3, '2020-02-03', 1),
+    -> (4, '2020-02-04', 4),
+    -> (5, '2020-02-05', 2),
+    -> (6, '2020-02-06', 3),
+    -> (7, '2020-02-07', 2),
+    -> (8, '2020-02-08', 3),
+    -> (9, '2020-02-09', 2),
+    -> (10, '2020-02-10', 1);
+    -> (11, '2020-02-11', 4),
+    -> (12, '2020-02-12', 3),
+    -> (13, '2020-02-13', 2),
+    -> (14, '2020-02-14', 3),
+    -> (15, '2020-02-15', 1);
+Query OK, 15 rows affected (0.10 sec)
+Records: 15  Duplicates: 0  Warnings: 0
+
+mysql> select * from Orders;
++--------+---------------------+--------+
+| ord_id | ord_datetime        | ord_an |
++--------+---------------------+--------+
+|      1 | 2020-02-01 00:00:00 |      3 |
+|      2 | 2020-02-02 00:00:00 |      1 |
+|      3 | 2020-02-03 00:00:00 |      1 |
+|      4 | 2020-02-04 00:00:00 |      4 |
+|      5 | 2020-02-05 00:00:00 |      2 |
+|      6 | 2020-02-06 00:00:00 |      3 |
+|      7 | 2020-02-07 00:00:00 |      2 |
+|      8 | 2020-02-08 00:00:00 |      3 |
+|      9 | 2020-02-09 00:00:00 |      2 |
+|     10 | 2020-02-10 00:00:00 |      1 |
+|     11 | 2020-02-11 00:00:00 |      4 |
+|     12 | 2020-02-12 00:00:00 |      3 |
+|     13 | 2020-02-13 00:00:00 |      2 |
+|     14 | 2020-02-14 00:00:00 |      3 |
+|     15 | 2020-02-15 00:00:00 |      1 |
++--------+---------------------+--------+
+15 rows in set (0.00 sec)
