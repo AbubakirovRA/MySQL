@@ -1,0 +1,33 @@
+1. Создайте функцию, 
+которая принимает кол-во сек 
+и форматирует их 
+в кол-во дней, часов, минут и секунд.
+
+Пример: 
+123456 -> '1 days 10 hours 17 minutes 36 seconds '
+
+delimiter //
+create procedure format (in timeInSec int)
+begin
+    declare dd int;
+    declare hh int;
+    declare mm int;
+    declare ss int;
+    declare result varchar(50) default null;
+	set dd = timeInSec/86400;
+	set hh = MOD(timeInSec, 86400)/3600;
+	set mm = MOD(timeInSec, 3600)/60;
+	set ss = MOD(timeInSec, 60);
+	set result = concat(dd, ' days ', hh, ' hours, ', mm, ' minutes ', ss, ' seconds');
+    select result;
+end//
+
+mysql> call format(123456);
++----------------------------------------+
+| result                                 |
++----------------------------------------+
+| 1 days 10 hours, 18 minutes 36 seconds |
++----------------------------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)

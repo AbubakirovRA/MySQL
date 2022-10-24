@@ -1,0 +1,25 @@
+2. Выведите только четные числа от 1 до 10 включительно.
+Пример: 
+2,4,6,8,10 (можно сделать через шаг +  2: х = 2, х+=2)
+
+delimiter //
+create procedure even ()
+begin
+    declare i int default 2;
+    declare result varchar(50) default '2';
+    	while i < 10 do
+	    set i = i + 2;
+	    set result = concat(result, ', ', i);
+	end while;
+select result;
+end//
+
+mysql> call even();
++----------------+
+| result         |
++----------------+
+| 2, 4, 6, 8, 10 |
++----------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
